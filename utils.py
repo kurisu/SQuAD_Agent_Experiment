@@ -23,17 +23,19 @@ def pull_message(step_log: dict):
         )
     if step_log.get("observation"):
         yield ChatMessage(
-            role="assistant", content=f"```\n{step_log['observation']}\n```"
+            role="assistant", 
+            metadata={"title": "👀 Observation"},
+            content=f"```\n{step_log['observation']}\n```"
         )
     if step_log.get("error"):
         yield ChatMessage(
             role="assistant",
-            content=str(step_log["error"]),
             metadata={"title": "💥 Error"},
+            content=str(step_log["error"]),
         )
 
 def stream_from_transformers_agent(
-    agent: ReactCodeAgent, prompt: str
+    agent: ReactCodeAgent, prompt: str,
 ) -> Generator[ChatMessage, None, ChatMessage | None]:
     """Runs an agent with the given prompt and streams the messages from the agent as ChatMessages."""
 
@@ -41,7 +43,7 @@ def stream_from_transformers_agent(
         output: agent_types.AgentType | str = None
 
     step_log = None
-    for step_log in agent.run(prompt, stream=True):
+    for step_log in agent.run(prompt, stream=True, reset=len(agent.logs) == 0): # Reset=False misbehaves if the agent has not yet been run
         if isinstance(step_log, dict):
             for message in pull_message(step_log):
                 print("message", message)
