@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from data import Data
+from prompts import SQUAD_REACT_CODE_SYSTEM_PROMPT
 
 class SquadRetrieverTool(Tool):
     name = "squad_retriever"
@@ -68,8 +69,11 @@ TASK_SOLVING_TOOLBOX = [
 #llm_engine = HfApiEngine("meta-llama/Meta-Llama-3.1-8B-Instruct")
 llm_engine = HfApiEngine(model="http://localhost:1234/v1")
 # Initialize the agent with both tools
-agent = ReactCodeAgent(tools=TASK_SOLVING_TOOLBOX, llm_engine=llm_engine)
-# print(agent.toolbox().tools)
+agent = ReactCodeAgent(
+    tools=TASK_SOLVING_TOOLBOX, 
+    llm_engine=llm_engine,
+    system_prompt=SQUAD_REACT_CODE_SYSTEM_PROMPT
+)
 
 def interact_with_agent(prompt, messages):
     messages.append(ChatMessage(role="user", content=prompt))
@@ -108,7 +112,7 @@ with gr.Blocks(fill_height=True) as demo:
     )
     text_input = gr.Textbox(lines=1, label="Chat Message", scale=0)
     text_input.submit(interact_with_agent, [text_input, chatbot], [chatbot])
-    text_input.submit(lambda x: "", None, text_input)
+    text_input.submit(lambda: "", None, text_input)
 
 if __name__ == "__main__":
     demo.launch()
