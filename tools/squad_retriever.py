@@ -7,7 +7,7 @@ class SquadRetrieverTool(Tool):
     inputs = {
         "query": {
             "type": "string",
-            "description": "The question. This should be the literal question being asked, only modified to be informed by chat history.",
+            "description": "The question. This should be the literal question being asked, only modified to be informed by chat history. Be sure to pass this as a keyword argument and not a dictionary.",
         },
     }
     output_type = "string"
