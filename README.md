@@ -25,6 +25,12 @@ python app.py
 5. Transformers Agents 2.0: Transformers Agents 2.0 is a framework for building conversational AI systems. It is used in this project to build the chatbot.
 6. Created a SquadRetrieverTool to integrate a fine-tuned BERT model into the agent, along with a TextToImageTool for a playful way to engage with the question-answering agent.
 
+## Evaluation
+
+[Agent Reasoning Benchmark](https://github.com/aymeric-roucher/agent_reasoning_benchmark)
+[Hugging Face Blog: Open Source LLMs as Agents](https://huggingface.co/blog/open-source-llms-as-agents)
+[Benchmarking Transformers Agents](https://github.com/aymeric-roucher/agent_reasoning_benchmark/blob/main/benchmark_transformers_agents.ipynb)
+
 ## Results
 
 TBD
