@@ -32,15 +32,15 @@ The Bots class creates the bots and passes them to the frontend.
 class Bots:
     def __init__(self):
         self.data = Data()
+        self.data.load_data()
         self.query_engine = None
         self.chat_agent = None
         self.all_bots = None
-        self.data.load_data()
         self.create_bots()
 
     def create_query_engine_bot(self):
         if self.query_engine is None:
-            self.query_engine = BotWrapper(self.data.index.as_query_engine(streaming=True))
+            self.query_engine = BotWrapper(self.data.index.as_query_engine())
         return self.query_engine
     
     def create_chat_agent(self):
@@ -56,8 +56,7 @@ class Bots:
                     "Here are the relevant documents for the context:\n"
                     "{context_str}"
                     "\nInstruction: Use the previous chat history, or the context above, to interact and help the user."
-                ),
-                streaming=True
+                )
             ))
         return self.chat_agent
 
