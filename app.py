@@ -14,8 +14,8 @@ TASK_SOLVING_TOOLBOX = [
     TextToImageTool(),
 ]
 
-# model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-model_name = "http://localhost:1234/v1"
+model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+# model_name = "http://localhost:1234/v1"
 
 llm_engine = HfApiEngine(model_name)
 
