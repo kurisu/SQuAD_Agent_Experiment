@@ -7,14 +7,19 @@ The project is built using Transformers Agents 2.0, and uses the Stanford SQuAD 
 ## Getting Started
 
 1. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
-2. Set up required keys:
+
+1. Set up required keys:
+
 ```bash
 HUGGINGFACE_API_TOKEN=<your token>
 ```
-3. Run the app:
+
+1. Run the app:
+
 ```bash
 python app.py
 ```
