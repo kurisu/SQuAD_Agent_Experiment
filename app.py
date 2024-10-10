@@ -14,11 +14,11 @@ from data import Data
 
 class SquadRetrieverTool(Tool):
     name = "squad_retriever"
-    description = "Retrieves some documents from the Stanford Question Answering Dataset (SQuAD) that have the closest embeddings to the input query."
+    description = "Answers questions from the Stanford Question Answering Dataset (SQuAD)."
     inputs = {
         "query": {
             "type": "string",
-            "description": "The query to perform. This should be semantically close to question being asked, informed by recent context from the chat history.",
+            "description": "The question. This should be the literal question being asked, only modified to be informed by chat history.",
         },
     }
     output_type = "string"
@@ -53,14 +53,23 @@ class TextToImageTool(Tool):
         return self.client.text_to_image(prompt)
 
 
-image_generation_tool = TextToImageTool()
-squad_retriever_tool = SquadRetrieverTool()
+# image_generation_tool = TextToImageTool()
+# squad_retriever_tool = SquadRetrieverTool()
+
+TASK_SOLVING_TOOLBOX = [
+    SquadRetrieverTool(),
+    TextToImageTool(),
+    # SearchTool(),
+    # VisualQATool(),
+    # SpeechToTextTool(),
+    # TextInspectorTool(),
+]
 
 #llm_engine = HfApiEngine("meta-llama/Meta-Llama-3.1-8B-Instruct")
 llm_engine = HfApiEngine(model="http://localhost:1234/v1")
 # Initialize the agent with both tools
-agent = ReactCodeAgent(tools=[image_generation_tool, squad_retriever_tool], llm_engine=llm_engine)
-
+agent = ReactCodeAgent(tools=TASK_SOLVING_TOOLBOX, llm_engine=llm_engine)
+# print(agent.toolbox().tools)
 
 def interact_with_agent(prompt, messages):
     messages.append(ChatMessage(role="user", content=prompt))
@@ -99,7 +108,7 @@ with gr.Blocks(fill_height=True) as demo:
     )
     text_input = gr.Textbox(lines=1, label="Chat Message", scale=0)
     text_input.submit(interact_with_agent, [text_input, chatbot], [chatbot])
-
+    text_input.submit(lambda x: "", None, text_input)
 
 if __name__ == "__main__":
     demo.launch()
