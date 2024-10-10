@@ -21,8 +21,9 @@ python app.py
 1. SQuAD Dataset: The dataset used for training the chatbot is the Stanford SQuAD dataset, which contains over 100,000 questions and answers extracted from 500+ articles.
 2. MemGPT: MemGPT is a framework for building conversational AI systems. It uses a combination of retrieval and generation to create a chatbot that can answer questions about the dataset, while also incorporating conversational context.
 3. RAG: RAG is a technique used to improve the accuracy of chatbots by using a custom knowledge base. In this project, the Stanford SQuAD dataset is used as the knowledge base.
-4. GPT-4: GPT-4 is a large language model used to generate responses to user questions. It is used in this project to generate responses to user questions, while also incorporating conversational context.
-   1. Note: GPT-4o is not used in this project, due to its inability to reliably call functions. 
+4. Llama 3.1: Llama 3.1 is a large language model used to generate responses to user questions. It is used in this project to generate responses to user questions, while also incorporating conversational context.
+5. Transformers Agents 2.0: Transformers Agents 2.0 is a framework for building conversational AI systems. It is used in this project to build the chatbot.
+6. Created a SquadRetrieverTool to integrate a fine-tuned BERT model into the agent, along with a TextToImageTool for a playful way to engage with the question-answering agent.
 
 ## Results
 
