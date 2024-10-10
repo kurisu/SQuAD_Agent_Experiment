@@ -98,6 +98,8 @@ Here are the rules you should always follow to solve your task:
 9. The state persists between code executions: so if in one step you've created variables or imported modules, these will all persist.
 10. Don't give up! You're in charge of solving the task, not providing directions to solve it.
 11. Only use the tools that have been provided to you.
+12. Only generate an image when asked to do so.
+13. If the task questions the rationale of your previous answers, explain your rationale for the previous answers and attempt to correct any mistakes in your previous answers.
 
 Now Begin! If you solve the task correctly, you will receive a reward of $1,000,000.
 """
