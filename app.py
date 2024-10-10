@@ -2,72 +2,22 @@ import gradio as gr
 from gradio import ChatMessage
 from transformers import load_tool, ReactCodeAgent, HfApiEngine
 from utils import stream_from_transformers_agent
-import os
-# Import tool from Hub
-#image_generation_tool = load_tool("m-ric/text-to-image")
-from transformers.agents.tools import Tool
-from huggingface_hub import InferenceClient
+from prompts import SQUAD_REACT_CODE_SYSTEM_PROMPT
+from tools.squad_retriever import SquadRetrieverTool
+from tools.text_to_image import TextToImageTool
 from dotenv import load_dotenv
 load_dotenv()
-
-from data import Data
-from prompts import SQUAD_REACT_CODE_SYSTEM_PROMPT
-
-class SquadRetrieverTool(Tool):
-    name = "squad_retriever"
-    description = "Answers questions from the Stanford Question Answering Dataset (SQuAD)."
-    inputs = {
-        "query": {
-            "type": "string",
-            "description": "The question. This should be the literal question being asked, only modified to be informed by chat history.",
-        },
-    }
-    output_type = "string"
-    
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.data = Data()
-        self.data.load_data()
-        self.query_engine = self.data.index.as_query_engine()
-
-    def forward(self, query: str) -> str:
-        assert isinstance(query, str), "Your search query must be a string"
-
-        response = self.query_engine.query(query)
-        # docs = self.data.index.similarity_search(query, k=3)
-
-        if len(response.response) == 0:
-            return "No answer found for this query."
-        return "Retrieved answer:\n\n" + "\n===Answer===\n".join(
-            [response.response]
-        )
-
-class TextToImageTool(Tool):
-    description = "This is a tool that creates an image according to a prompt, which is a text description."
-    name = "image_generator"
-    inputs = {"prompt": {"type": "string", "description": "The image generator prompt. Don't hesitate to add details in the prompt to make the image look better, like 'high-res, photorealistic', etc."}}
-    output_type = "image"
-    model_sdxl = "stabilityai/stable-diffusion-xl-base-1.0"
-    client = InferenceClient(model_sdxl)
-
-    def forward(self, prompt):
-        return self.client.text_to_image(prompt)
-
-
-# image_generation_tool = TextToImageTool()
-# squad_retriever_tool = SquadRetrieverTool()
 
 TASK_SOLVING_TOOLBOX = [
     SquadRetrieverTool(),
     TextToImageTool(),
-    # SearchTool(),
-    # VisualQATool(),
-    # SpeechToTextTool(),
-    # TextInspectorTool(),
 ]
 
-#llm_engine = HfApiEngine("meta-llama/Meta-Llama-3.1-8B-Instruct")
-llm_engine = HfApiEngine(model="http://localhost:1234/v1")
+# model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+model_name = "http://localhost:1234/v1"
+
+llm_engine = HfApiEngine(model_name)
+
 # Initialize the agent with both tools
 agent = ReactCodeAgent(
     tools=TASK_SOLVING_TOOLBOX, 

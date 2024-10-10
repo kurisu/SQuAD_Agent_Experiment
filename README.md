@@ -29,9 +29,9 @@ python app.py
 
 ## Evaluation
 
-[Agent Reasoning Benchmark](https://github.com/aymeric-roucher/agent_reasoning_benchmark)
-[Hugging Face Blog: Open Source LLMs as Agents](https://huggingface.co/blog/open-source-llms-as-agents)
-[Benchmarking Transformers Agents](https://github.com/aymeric-roucher/agent_reasoning_benchmark/blob/main/benchmark_transformers_agents.ipynb)
+* [Agent Reasoning Benchmark](https://github.com/aymeric-roucher/agent_reasoning_benchmark)
+* [Hugging Face Blog: Open Source LLMs as Agents](https://huggingface.co/blog/open-source-llms-as-agents)
+* [Benchmarking Transformers Agents](https://github.com/aymeric-roucher/agent_reasoning_benchmark/blob/main/benchmark_transformers_agents.ipynb)
 
 ## Results
 
