@@ -29,10 +29,6 @@ class Data:
                 url = f"https://drive.google.com/uc?export=download&id={file_id}"
                 output = "chroma_db.zip"
                 gdown.download(url, output, quiet=False)
-                # download_file_from_google_drive(file_id, "chroma_db.zip")
-                # url = "https://drive.google.com/file/d/12xLx8J0dhtZuc8G-7xVyldLVnB3eTmxe/view?usp=sharing"
-                # url = "https://drive.google.com/uc?export=download&id=12xLx8J0dhtZuc8G-7xVyldLVnB3eTmxe"
-                # os.system(f"wget {url} -O chroma_db.zip")
                 print("Unzipping data...")
                 os.system("unzip chroma_db.zip")
             except Exception as e:
