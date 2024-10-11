@@ -9,3 +9,5 @@ pytest==8.3.3
 python-dotenv==1.0.1
 Requests==2.32.3
 transformers==4.45.2
+llama-index-vector-stores-chroma==0.2.0
+
