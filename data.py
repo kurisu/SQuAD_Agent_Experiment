@@ -10,39 +10,64 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Load OPENAI_API_KEY from .env (not included in repo)
 
+import gdown
+
 class Data:
     def __init__(self):
         self.client = None
         self.collection = None
         self.index = None
+        self.download_data()
         self.load_data()
+
+    def download_data(self):
+        # Download the already indexed data
+        if not os.path.exists("./chroma_db"):
+            try:
+                print("Downloading data...")
+                file_id = "12xLx8J0dhtZuc8G-7xVyldLVnB3eTmxe"
+                url = f"https://drive.google.com/uc?export=download&id={file_id}"
+                output = "chroma_db.zip"
+                gdown.download(url, output, quiet=False)
+                # download_file_from_google_drive(file_id, "chroma_db.zip")
+                # url = "https://drive.google.com/file/d/12xLx8J0dhtZuc8G-7xVyldLVnB3eTmxe/view?usp=sharing"
+                # url = "https://drive.google.com/uc?export=download&id=12xLx8J0dhtZuc8G-7xVyldLVnB3eTmxe"
+                # os.system(f"wget {url} -O chroma_db.zip")
+                print("Unzipping data...")
+                os.system("unzip chroma_db.zip")
+            except Exception as e:
+                print(f"Error downloading data: {e}")
+
+        return os.path.exists("./chroma_db")
 
     def load_data(self):
         print("Loading data...")
-        with open('data/train-v1.1.json', 'r') as f:
-            raw_data = json.load(f)        
-
-        extracted_question = []
-        extracted_answer = []
-
-        for data in raw_data['data']:
-            for par in data['paragraphs']:
-                for qa in par['qas']:
-                    for ans in qa['answers']:
-                        extracted_question.append(qa['question'])
-                        extracted_answer.append(ans['text'])
-
-        documents = []
-        for i in range(len(extracted_question)):
-            documents.append(f"Question: {extracted_question[i]} \nAnswer: {extracted_answer[i]}")
-
-        self.documents = [Document(text=t) for t in documents]
-        self.extracted_question = extracted_question
-        self.extracted_answer = extracted_answer
-
-        print("Raw Data loaded")
-
+    
         if not os.path.exists("./chroma_db"):
+            # Attempt to generate an index from the raw data
+            with open('data/train-v1.1.json', 'r') as f:
+                raw_data = json.load(f)        
+
+            extracted_question = []
+            extracted_answer = []
+
+            for data in raw_data['data']:
+                for par in data['paragraphs']:
+                    for qa in par['qas']:
+                        for ans in qa['answers']:
+                            extracted_question.append(qa['question'])
+                            extracted_answer.append(ans['text'])
+
+            documents = []
+            for i in range(len(extracted_question)):
+                documents.append(f"Question: {extracted_question[i]} \nAnswer: {extracted_answer[i]}")
+
+            self.documents = [Document(text=t) for t in documents]
+            self.extracted_question = extracted_question
+            self.extracted_answer = extracted_answer
+
+            print("Raw Data loaded")
+
             print("Creating Chroma DB...")
             # initialize client, setting path to save data
             self.client = chromadb.PersistentClient(path="./chroma_db")
