@@ -3,7 +3,7 @@ from gradio import ChatMessage
 from transformers import ReactCodeAgent, HfApiEngine
 from utils import stream_from_transformers_agent
 from prompts import SQUAD_REACT_CODE_SYSTEM_PROMPT
-from tools.squad_retriever import SquadRetrieverTool
+from tools.squad_tools import SquadRetrieverTool, SquadQueryTool
 from tools.text_to_image import TextToImageTool
 from dotenv import load_dotenv
 
@@ -11,6 +11,7 @@ load_dotenv()
 
 TASK_SOLVING_TOOLBOX = [
     SquadRetrieverTool(),
+    SquadQueryTool(),
     TextToImageTool(),
 ]
 
