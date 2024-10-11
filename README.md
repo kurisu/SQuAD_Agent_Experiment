@@ -5,6 +5,7 @@ sdk: gradio
 sdk_version: 5.0.1
 python_version: 3.11.9
 ---
+
 # SQuAD_Agent_Experiment
 
 ## Overview
@@ -15,14 +16,17 @@ The project is built using Transformers Agents 2.0, and uses the Stanford SQuAD 
 
 1. Install dependencies:
 
+* Requires Python >= 3.11.9
+
 ```bash
+pip install -r pre-requirements.txt
 pip install -r requirements.txt
 ```
 
 1. Set up required keys:
 
 ```bash
-HUGGINGFACE_API_TOKEN=<your token>
+HF_TOKEN=<your token>
 ```
 
 1. Run the app:
