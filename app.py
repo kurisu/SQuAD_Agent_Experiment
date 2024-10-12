@@ -54,9 +54,9 @@ def add_message(message, messages):
     return messages
 
 def interact_with_agent(messages, request: Request):
-    username = request.username
+    session_hash = request.session_hash
     prompt = messages[-1]['content']
-    agent.logs = sessions.get(username + "_logs", [])
+    agent.logs = sessions.get(session_hash + "_logs", [])
     for msg in stream_from_transformers_agent(agent, prompt):
         messages.append(msg)
         yield messages
@@ -65,17 +65,17 @@ def interact_with_agent(messages, request: Request):
 def persist(component):
 
     def resume_session(value, request: Request):
-        username = request.username
-        print(f"Resuming session for {username}")
-        state = sessions.get(username, value)
-        agent.logs = sessions.get(username + "_logs", [])
+        session_hash = request.session_hash
+        print(f"Resuming session for {session_hash}")
+        state = sessions.get(session_hash, value)
+        agent.logs = sessions.get(session_hash + "_logs", [])
         return state
 
     def update_session(value, request: Request):
-        username = request.username
-        print(f"Updating persisted session state for {username}")
-        sessions[username] = value
-        sessions[username + "_logs"] = agent.logs
+        session_hash = request.session_hash
+        print(f"Updating persisted session state for {session_hash}")
+        sessions[session_hash] = value
+        sessions[session_hash + "_logs"] = agent.logs
         pickle.dump(sessions, open(sessions_path, "wb"))
         return
 
@@ -84,16 +84,7 @@ def persist(component):
 
     return component
 
-def welcome_message(request: Request):
-    return f"<h2>Welcome, {request.username}</h2>"
-
 with gr.Blocks(fill_height=True) as demo:
-    # put the welcome message and logout button in a row
-    with gr.Row() as row:
-        welcome_msg = gr.Markdown(f"Welcome")
-        logout_button = gr.Button("Logout", link="/logout")
-        demo.load(welcome_message, None, welcome_msg)
-
     chatbot = persist(gr.Chatbot(
         value=[],
         label="SQuAD Agent",
@@ -129,16 +120,5 @@ with gr.Blocks(fill_height=True) as demo:
         interact_with_agent, [chatbot], [chatbot]
     )
 
-def honor_system_auth(username, password):
-    return password == "happy"
-
 if __name__ == "__main__":
-    demo.launch(
-        auth=honor_system_auth,
-        auth_message="""<h3>Honor System Authentication:</h3>
-            <p>Log in with <strong>any username</strong> and the password <strong>"happy"</strong>.</p>
-            <br/><br/>
-            <i>Note:Your chat history will be saved to your username, but take care because others 
-            may log in with the same username and see your chat history.</i>
-        """,
-    )
+    demo.launch()
