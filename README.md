@@ -63,6 +63,9 @@ TBD
 
 ## Acknowledgments
 
-* [MemGPT](https://github.com/cpacker/MemGPT)
+* [Agents 2.0](https://github.com/huggingface/transformers/tree/main/src/transformers/agents)
+* [SemScore: Automated Evaluation of Instruction-Tuned LLMs based on Semantic Textual Similarity](https://arxiv.org/abs/2401.17072)
+* [SemScore](https://huggingface.co/blog/g-ronimo/semscore)
 * [Stanford SQuAD](https://rajpurkar.github.io/SQuAD-explorer/)
-* [GPT-4](https://openai.com/gpt-4/)
+* [llama 3.1](https://github.com/meta-llama/Meta-Llama)
+* [Gradio](https://www.gradio.app/)
