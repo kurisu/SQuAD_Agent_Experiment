@@ -1,6 +1,5 @@
 from transformers.agents.tools import Tool
-from data import Data
-
+from data import get_data
 
 class SquadRetrieverTool(Tool):
     name = "squad_retriever"
@@ -19,7 +18,7 @@ class SquadRetrieverTool(Tool):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.data = Data()
+        self.data = get_data(download=True)
         self.retriever = self.data.index.as_retriever()
 
     def forward(self, query: str) -> str:
@@ -52,7 +51,7 @@ class SquadQueryTool(Tool):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.data = Data()
+        self.data = get_data(download=True)
         self.query_engine = self.data.index.as_query_engine()
 
     def forward(self, query: str) -> str:
