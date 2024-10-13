@@ -13,7 +13,7 @@ load_dotenv()
 sessions_path = "sessions.pkl"
 sessions = pickle.load(open(sessions_path, "rb")) if os.path.exists(sessions_path) else {}
 
-agent = get_agent()
+agent = get_agent(model_name="meta-llama/Meta-Llama-3.1-8B-Instruct", include_image_tools=True)
 
 app = None
 

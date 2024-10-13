@@ -3,17 +3,20 @@ from prompts import SQUAD_REACT_CODE_SYSTEM_PROMPT
 from tools.squad_tools import SquadRetrieverTool, SquadQueryTool
 from tools.text_to_image import TextToImageTool
 
-def get_agent():
-    # model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-    model_name = "http://localhost:1234/v1"
+def get_agent(model_name = None, include_image_tools = False):
+    DEFAULT_MODEL_NAME = "http://localhost:1234/v1"
+    if model_name is None:
+        model_name = DEFAULT_MODEL_NAME
 
     llm_engine = HfApiEngine(model_name)
 
     TASK_SOLVING_TOOLBOX = [
         SquadRetrieverTool(),
-        SquadQueryTool(),
-        TextToImageTool(),
+        SquadQueryTool()
     ]
+
+    if include_image_tools:
+        TASK_SOLVING_TOOLBOX.append(TextToImageTool())
 
     # Initialize the agent with both tools
     agent = ReactCodeAgent(
