@@ -1,6 +1,7 @@
 import os
 import json
 import chromadb
+import pandas as pd
 from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import StorageContext
@@ -52,8 +53,7 @@ class Data:
         with open('data/train-v1.1.json', 'r') as f:
             raw_data = json.load(f)  
             
-        extracted_question = []
-        extracted_answer = []
+        raw_documents = []
         documents = []
 
         for data in raw_data['data']:
@@ -67,8 +67,7 @@ class Data:
                         if ans['text'] not in answers:
                             answers.append(ans['text'])
                     for answer in answers:
-                        extracted_question.append(question)
-                        extracted_answer.append(answer)
+                        raw_documents.append([title, context, question, answer])
                     
                     doc = f"""
                         Title: {title}
@@ -81,8 +80,8 @@ class Data:
                     doc = "\n".join([line.strip() for line in doc.split("\n")])
                     documents.append(doc)
 
+        self.df = pd.DataFrame(raw_documents, columns=["Title", "Context", "Question", "Answer"])
         self.documents = [Document(text=t) for t in documents]
-        self.question_answer_pairs = list(zip(extracted_question, extracted_answer))
 
         print("Raw Data loaded")
 
