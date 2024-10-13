@@ -1,40 +1,21 @@
 import gradio as gr
 from gradio import ChatMessage
-from transformers import ReactCodeAgent, HfApiEngine
 from utils import stream_from_transformers_agent
-from prompts import SQUAD_REACT_CODE_SYSTEM_PROMPT
-from tools.squad_tools import SquadRetrieverTool, SquadQueryTool
-from tools.text_to_image import TextToImageTool
 from gradio.context import Context
 from gradio import Request
 import pickle
 import os
 from dotenv import load_dotenv
+from agent import get_agent
 
 load_dotenv()
-
-TASK_SOLVING_TOOLBOX = [
-    SquadRetrieverTool(),
-    SquadQueryTool(),
-    TextToImageTool(),
-]
 
 sessions_path = "sessions.pkl"
 sessions = pickle.load(open(sessions_path, "rb")) if os.path.exists(sessions_path) else {}
 
+agent = get_agent()
+
 app = None
-
-model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-# model_name = "http://localhost:1234/v1"
-
-llm_engine = HfApiEngine(model_name)
-
-# Initialize the agent with both tools
-agent = ReactCodeAgent(
-    tools=TASK_SOLVING_TOOLBOX,
-    llm_engine=llm_engine,
-    system_prompt=SQUAD_REACT_CODE_SYSTEM_PROMPT,
-)
 
 def append_example_message(x: gr.SelectData, messages):
     if x.value["text"] is not None:
