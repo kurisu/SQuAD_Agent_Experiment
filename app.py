@@ -6,19 +6,30 @@ from gradio import Request
 import pickle
 import os
 from dotenv import load_dotenv
-from agent import get_agent
+from agent import get_agent, DEFAULT_TASK_SOLVING_TOOLBOX
+from tools.text_to_image import TextToImageTool
 
 load_dotenv()
 
 sessions_path = "sessions.pkl"
-sessions = pickle.load(open(sessions_path, "rb")) if os.path.exists(sessions_path) else {}
+sessions = (
+    pickle.load(open(sessions_path, "rb")) if os.path.exists(sessions_path) else {}
+)
 
 # If currently hosted on HuggingFace Spaces, use the default model, otherwise use the local model
-model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct" if os.getenv("SPACE_ID") is not None else "http://localhost:1234/v1"
+model_name = (
+    "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    if os.getenv("SPACE_ID") is not None
+    else "http://localhost:1234/v1"
+)
 
-agent = get_agent(model_name=model_name, include_image_tools=True)
+# Add image tools to the default task solving toolbox, for a more visually interactive experience
+TASK_SOLVING_TOOLBOX = DEFAULT_TASK_SOLVING_TOOLBOX + [TextToImageTool()]
+
+agent = get_agent(model_name=model_name, toolbox=TASK_SOLVING_TOOLBOX)
 
 app = None
+
 
 def append_example_message(x: gr.SelectData, messages):
     if x.value["text"] is not None:
@@ -33,18 +44,21 @@ def append_example_message(x: gr.SelectData, messages):
     messages.append(ChatMessage(role="user", content=message))
     return messages
 
+
 def add_message(message, messages):
     messages.append(ChatMessage(role="user", content=message))
     return messages
 
+
 def interact_with_agent(messages, request: Request):
     session_hash = request.session_hash
-    prompt = messages[-1]['content']
+    prompt = messages[-1]["content"]
     agent.logs = sessions.get(session_hash + "_logs", [])
     for msg in stream_from_transformers_agent(agent, prompt):
         messages.append(msg)
         yield messages
     yield messages
+
 
 def persist(component):
 
@@ -68,34 +82,37 @@ def persist(component):
 
     return component
 
+
 with gr.Blocks(fill_height=True) as demo:
-    chatbot = persist(gr.Chatbot(
-        value=[],
-        label="SQuAD Agent",
-        type="messages",
-        avatar_images=(
-            None,
-            "https://em-content.zobj.net/source/twitter/53/robot-face_1f916.png",
-        ),
-        scale=1,
-        autoscroll=True,
-        show_copy_all_button=True,
-        show_copy_button=True,
-        placeholder="""<h1>SQuAD Agent</h1>
+    chatbot = persist(
+        gr.Chatbot(
+            value=[],
+            label="SQuAD Agent",
+            type="messages",
+            avatar_images=(
+                None,
+                "https://em-content.zobj.net/source/twitter/53/robot-face_1f916.png",
+            ),
+            scale=1,
+            autoscroll=True,
+            show_copy_all_button=True,
+            show_copy_button=True,
+            placeholder="""<h1>SQuAD Agent</h1>
             <h2>I am your friendly guide to the Stanford Question and Answer Dataset (SQuAD).</h2>
         """,
-        examples=[
-            {
-                "text": "What is on top of the Notre Dame building?",
-            },
-            {
-                "text": "Tell me what's on top of the Notre Dame building, and draw a picture of it.",
-            },
-            {
-                "text": "Draw a picture of whatever is on top of the Notre Dame building.",
-            },
-        ],
-    ))
+            examples=[
+                {
+                    "text": "What is on top of the Notre Dame building?",
+                },
+                {
+                    "text": "Tell me what's on top of the Notre Dame building, and draw a picture of it.",
+                },
+                {
+                    "text": "Draw a picture of whatever is on top of the Notre Dame building.",
+                },
+            ],
+        )
+    )
     text_input = gr.Textbox(lines=1, label="Chat Message", scale=0)
     chat_msg = text_input.submit(add_message, [text_input, chatbot], [chatbot])
     bot_msg = chat_msg.then(interact_with_agent, [chatbot], [chatbot])
