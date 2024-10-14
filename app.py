@@ -13,7 +13,10 @@ load_dotenv()
 sessions_path = "sessions.pkl"
 sessions = pickle.load(open(sessions_path, "rb")) if os.path.exists(sessions_path) else {}
 
-agent = get_agent(model_name="meta-llama/Meta-Llama-3.1-8B-Instruct", include_image_tools=True)
+# If currently hosted on HuggingFace Spaces, use the default model, otherwise use the local model
+model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct" if os.getenv("SPACE_ID") is not None else "http://localhost:1234/v1"
+
+agent = get_agent(model_name=model_name, include_image_tools=True)
 
 app = None
 
