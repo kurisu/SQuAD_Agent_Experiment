@@ -34,9 +34,9 @@ class Data:
     def download_data(self):
         # Download the already indexed data
         if not os.path.exists("./chroma_db"):
-            try:
+            try: 
                 print("Downloading data...")
-                file_id = "12xLx8J0dhtZuc8G-7xVyldLVnB3eTmxe"
+                file_id = "1JvYQ9E5zDBKRCUKkxejDvp7UGwzxDAUW"
                 url = f"https://drive.google.com/uc?export=download&id={file_id}"
                 output = "chroma_db.zip"
                 gdown.download(url, output, quiet=False)
