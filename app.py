@@ -7,13 +7,26 @@ import pickle
 import os
 from dotenv import load_dotenv
 from agent import get_agent, DEFAULT_TASK_SOLVING_TOOLBOX
+from transformers.agents import (
+    DuckDuckGoSearchTool,
+    ImageQuestionAnsweringTool,
+    VisitWebpageTool,
+)
 from tools.text_to_image import TextToImageTool
+from transformers import load_tool
+from prompts import DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+from pygments.formatters import HtmlFormatter
+
 
 load_dotenv()
 
+SESSION_PERSISTENCE_ENABLED = os.getenv("SESSION_PERSISTENCE_ENABLED", False)
+
 sessions_path = "sessions.pkl"
 sessions = (
-    pickle.load(open(sessions_path, "rb")) if os.path.exists(sessions_path) else {}
+    pickle.load(open(sessions_path, "rb"))
+    if SESSION_PERSISTENCE_ENABLED and os.path.exists(sessions_path)
+    else {}
 )
 
 # If currently hosted on HuggingFace Spaces, use the default model, otherwise use the local model
@@ -23,10 +36,24 @@ model_name = (
     else "http://localhost:1234/v1"
 )
 
-# Add image tools to the default task solving toolbox, for a more visually interactive experience
-TASK_SOLVING_TOOLBOX = DEFAULT_TASK_SOLVING_TOOLBOX + [TextToImageTool()]
+ADDITIONAL_TOOLS = [
+    DuckDuckGoSearchTool(),
+    VisitWebpageTool(),
+    ImageQuestionAnsweringTool(),
+    load_tool("speech_to_text"),
+    load_tool("text_to_speech"),
+    load_tool("translation"),
+    TextToImageTool(),
+]
 
-agent = get_agent(model_name=model_name, toolbox=TASK_SOLVING_TOOLBOX)
+# Add image tools to the default task solving toolbox, for a more visually interactive experience
+TASK_SOLVING_TOOLBOX = DEFAULT_TASK_SOLVING_TOOLBOX + ADDITIONAL_TOOLS
+
+system_prompt = DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+
+agent = get_agent(
+    model_name=model_name, toolbox=TASK_SOLVING_TOOLBOX, system_prompt=system_prompt, use_openai=False
+)
 
 app = None
 
@@ -54,10 +81,14 @@ def interact_with_agent(messages, request: Request):
     session_hash = request.session_hash
     prompt = messages[-1]["content"]
     agent.logs = sessions.get(session_hash + "_logs", [])
+    yield messages, gr.update(value = "<center><h1>Thinking...</h1></center>", visible = True)
     for msg in stream_from_transformers_agent(agent, prompt):
-        messages.append(msg)
-        yield messages
-    yield messages
+        if isinstance(msg, ChatMessage):
+            messages.append(msg)
+            yield messages, gr.update(visible = True)
+        else:
+            yield messages, gr.update(value = f"<center><h1>{msg}</h1></center>", visible = True)
+    yield messages, gr.update(value = "<center><h1>Idle</h1></center>", visible = False)
 
 
 def persist(component):
@@ -74,16 +105,18 @@ def persist(component):
         print(f"Updating persisted session state for {session_hash}")
         sessions[session_hash] = value
         sessions[session_hash + "_logs"] = agent.logs
-        pickle.dump(sessions, open(sessions_path, "wb"))
-        return
+        if SESSION_PERSISTENCE_ENABLED:
+            pickle.dump(sessions, open(sessions_path, "wb"))
 
     Context.root_block.load(resume_session, inputs=[component], outputs=component)
-    component.change(update_session, inputs=[component], outputs=[])
+    component.change(update_session, inputs=[component], outputs=None)
 
     return component
 
 
-with gr.Blocks(fill_height=True) as demo:
+with gr.Blocks(fill_height=True, css=".gradio-container .message .content {text-align: left;}" + HtmlFormatter().get_style_defs('.highlight')) as demo:
+    state = gr.State()
+    inner_monologue_component = gr.Markdown("""<h2>Inner Monologue</h2>""", visible = False)
     chatbot = persist(
         gr.Chatbot(
             value=[],
@@ -99,6 +132,7 @@ with gr.Blocks(fill_height=True) as demo:
             show_copy_button=True,
             placeholder="""<h1>SQuAD Agent</h1>
             <h2>I am your friendly guide to the Stanford Question and Answer Dataset (SQuAD).</h2>
+            <h2>You can ask me questions about the dataset, or you can ask me to generate images based on your prompts.</h2>
         """,
             examples=[
                 {
@@ -115,10 +149,10 @@ with gr.Blocks(fill_height=True) as demo:
     )
     text_input = gr.Textbox(lines=1, label="Chat Message", scale=0)
     chat_msg = text_input.submit(add_message, [text_input, chatbot], [chatbot])
-    bot_msg = chat_msg.then(interact_with_agent, [chatbot], [chatbot])
+    bot_msg = chat_msg.then(interact_with_agent, [chatbot], [chatbot, inner_monologue_component])
     text_input.submit(lambda: "", None, text_input)
     chatbot.example_select(append_example_message, [chatbot], [chatbot]).then(
-        interact_with_agent, [chatbot], [chatbot]
+        interact_with_agent, [chatbot], [chatbot, inner_monologue_component]
     )
 
 if __name__ == "__main__":
