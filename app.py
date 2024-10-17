@@ -36,6 +36,15 @@ model_name = (
     else "http://localhost:1234/v1"
 )
 
+image_qa_tool = ImageQuestionAnsweringTool()
+image_qa_tool.inputs = {
+    "image": {
+        "type": "image",
+        "description": "The image containing the information. It must be a PIL Image.",
+    },
+    "question": {"type": "string", "description": "The question in English"},
+}
+
 ADDITIONAL_TOOLS = [
     DuckDuckGoSearchTool(),
     VisitWebpageTool(),
@@ -52,7 +61,10 @@ TASK_SOLVING_TOOLBOX = DEFAULT_TASK_SOLVING_TOOLBOX + ADDITIONAL_TOOLS
 system_prompt = DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
 
 agent = get_agent(
-    model_name=model_name, toolbox=TASK_SOLVING_TOOLBOX, system_prompt=system_prompt, use_openai=False
+    model_name=model_name,
+    toolbox=TASK_SOLVING_TOOLBOX,
+    system_prompt=system_prompt,
+    use_openai=True,
 )
 
 app = None
@@ -81,14 +93,18 @@ def interact_with_agent(messages, request: Request):
     session_hash = request.session_hash
     prompt = messages[-1]["content"]
     agent.logs = sessions.get(session_hash + "_logs", [])
-    yield messages, gr.update(value = "<center><h1>Thinking...</h1></center>", visible = True)
+    yield messages, gr.update(
+        value="<center><h1>Thinking...</h1></center>", visible=True
+    )
     for msg in stream_from_transformers_agent(agent, prompt):
         if isinstance(msg, ChatMessage):
             messages.append(msg)
-            yield messages, gr.update(visible = True)
+            yield messages, gr.update(visible=True)
         else:
-            yield messages, gr.update(value = f"<center><h1>{msg}</h1></center>", visible = True)
-    yield messages, gr.update(value = "<center><h1>Idle</h1></center>", visible = False)
+            yield messages, gr.update(
+                value=f"<center><h1>{msg}</h1></center>", visible=True
+            )
+    yield messages, gr.update(value="<center><h1>Idle</h1></center>", visible=False)
 
 
 def persist(component):
@@ -114,9 +130,15 @@ def persist(component):
     return component
 
 
-with gr.Blocks(fill_height=True, css=".gradio-container .message .content {text-align: left;}" + HtmlFormatter().get_style_defs('.highlight')) as demo:
+with gr.Blocks(
+    fill_height=True,
+    css=".gradio-container .message .content {text-align: left;}"
+    + HtmlFormatter().get_style_defs(".highlight"),
+) as demo:
     state = gr.State()
-    inner_monologue_component = gr.Markdown("""<h2>Inner Monologue</h2>""", visible = False)
+    inner_monologue_component = gr.Markdown(
+        """<h2>Inner Monologue</h2>""", visible=False
+    )
     chatbot = persist(
         gr.Chatbot(
             value=[],
@@ -149,7 +171,9 @@ with gr.Blocks(fill_height=True, css=".gradio-container .message .content {text-
     )
     text_input = gr.Textbox(lines=1, label="Chat Message", scale=0)
     chat_msg = text_input.submit(add_message, [text_input, chatbot], [chatbot])
-    bot_msg = chat_msg.then(interact_with_agent, [chatbot], [chatbot, inner_monologue_component])
+    bot_msg = chat_msg.then(
+        interact_with_agent, [chatbot], [chatbot, inner_monologue_component]
+    )
     text_input.submit(lambda: "", None, text_input)
     chatbot.example_select(append_example_message, [chatbot], [chatbot]).then(
         interact_with_agent, [chatbot], [chatbot, inner_monologue_component]
