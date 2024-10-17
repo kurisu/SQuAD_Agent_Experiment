@@ -4,14 +4,13 @@ from data import get_data
 class SquadRetrieverTool(Tool):
     name = "squad_retriever"
     description = """Retrieves documents from the Stanford Question Answering Dataset (SQuAD). 
-        Because this tool does not remember context from previous queries, be sure to include any 
-        relevant context in your query. Also, this tool only looks for affirmative matches, and does 
-        not support negative queries, so only query for what you want, not what you don't want. 
+        Because this tool does not remember context from previous queries, be sure to include 
+        as many details as possible in your query. 
         """
     inputs = {
         "query": {
             "type": "string",
-            "description": "The query. This could be the literal question being asked by the user, modified to be informed by your goals and chat history. Be sure to pass this as a keyword argument and not a dictionary.",
+            "description": "The query. Be sure to pass this as a keyword argument and not a dictionary.",
         },
     }
     output_type = "string"
@@ -40,11 +39,11 @@ class SquadQueryTool(Tool):
     name = "squad_query"
     description = """Attempts to answer a question using the Stanford Question Answering Dataset (SQuAD).
         Because this tool does not remember context from previous queries, be sure to include 
-        any relevant context in your query."""
+        as many details as possible in your query."""
     inputs = {
         "query": {
             "type": "string",
-            "description": "The question. This should be the literal question being asked, only modified to be informed by your goals and chat history. Be sure to pass this as a keyword argument and not a dictionary.",
+            "description": "The question. Be sure to pass this as a keyword argument and not a dictionary.",
         },
     }
     output_type = "string"
@@ -58,7 +57,6 @@ class SquadQueryTool(Tool):
         assert isinstance(query, str), "Your search query must be a string"
 
         response = self.query_engine.query(query)
-        # docs = self.data.index.similarity_search(query, k=3)
 
         if len(response.response) == 0:
             return "No answer found for this query."
