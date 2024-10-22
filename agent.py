@@ -11,7 +11,7 @@ openai_role_conversions = {
 }
 
 class OpenAIModel:
-    def __init__(self, model_name="gpt-4o"):
+    def __init__(self, model_name="gpt-4o-mini-2024-07-18"):
         self.model_name = model_name
         self.client = OpenAI(
             api_key=os.getenv("OPENAI_API_KEY"),
@@ -33,7 +33,7 @@ def get_agent(
     system_prompt=DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT,
     toolbox=DEFAULT_TASK_SOLVING_TOOLBOX,
     use_openai=False,
-    openai_model_name="gpt-4o",
+    openai_model_name="gpt-4o-mini-2024-07-18",
 ):
     DEFAULT_MODEL_NAME = "http://localhost:1234/v1"
     if model_name is None:
