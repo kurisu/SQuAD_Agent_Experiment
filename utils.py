@@ -40,7 +40,7 @@ def stream_from_transformers_agent(
     inner_monologue = ChatMessage(
         role="assistant", 
         metadata={"title": "🧠 Thinking..."},
-        content=""
+        content="",
     )
 
     step_log = None
@@ -64,7 +64,7 @@ def stream_from_transformers_agent(
     Output.output = step_log
     if isinstance(Output.output, agent_types.AgentText):
         yield ChatMessage(
-            role="assistant", content=f"**Final answer:**\n```\n{Output.output.to_string()}\n```")  # type: ignore
+            role="assistant", content=f"{Output.output.to_string()}\n")  # type: ignore
     elif isinstance(Output.output, agent_types.AgentImage):
         yield ChatMessage(
             role="assistant",

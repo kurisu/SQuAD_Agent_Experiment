@@ -32,7 +32,7 @@ def get_agent(
     model_name=None,
     system_prompt=DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT,
     toolbox=DEFAULT_TASK_SOLVING_TOOLBOX,
-    use_openai=False,
+    use_openai=True,
     openai_model_name="gpt-4o-mini-2024-07-18",
 ):
     DEFAULT_MODEL_NAME = "http://localhost:1234/v1"

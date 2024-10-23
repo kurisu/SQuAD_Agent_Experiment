@@ -14,7 +14,7 @@ from transformers.agents import (
 )
 from tools.text_to_image import TextToImageTool
 from transformers import load_tool
-from prompts import DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+from prompts import DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT, FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT
 from pygments.formatters import HtmlFormatter
 
 
@@ -58,13 +58,14 @@ ADDITIONAL_TOOLS = [
 # Add image tools to the default task solving toolbox, for a more visually interactive experience
 TASK_SOLVING_TOOLBOX = DEFAULT_TASK_SOLVING_TOOLBOX + ADDITIONAL_TOOLS
 
-system_prompt = DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+# system_prompt = DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+system_prompt = FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT
 
 agent = get_agent(
     model_name=model_name,
     toolbox=TASK_SOLVING_TOOLBOX,
     system_prompt=system_prompt,
-    use_openai=True,
+    use_openai=True, # Use OpenAI instead of a local or HF model as the base LLM engine
 )
 
 app = None
@@ -129,6 +130,31 @@ def persist(component):
 
     return component
 
+from gradio.components import (
+    Component as GradioComponent,
+)
+from gradio.components.chatbot import Chatbot, FileDataDict, FileData, ComponentMessage, FileMessage
+
+class CleanChatBot(Chatbot):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def _postprocess_content(
+        self,
+        chat_message: str
+        | tuple
+        | list
+        | FileDataDict
+        | FileData
+        | GradioComponent
+        | None,
+    ) -> str | FileMessage | ComponentMessage | None:
+        response = super()._postprocess_content(chat_message)
+        print(f"Post processing content: {response}")
+        if isinstance(response, ComponentMessage):
+            print(f"Setting open to False for {response}")
+            response.props["open"] = False
+        return response
 
 with gr.Blocks(
     fill_height=True,
@@ -146,7 +172,7 @@ with gr.Blocks(
             type="messages",
             avatar_images=(
                 None,
-                "https://em-content.zobj.net/source/twitter/53/robot-face_1f916.png",
+                "SQuAD.png",
             ),
             scale=1,
             autoscroll=True,
@@ -154,7 +180,8 @@ with gr.Blocks(
             show_copy_button=True,
             placeholder="""<h1>SQuAD Agent</h1>
             <h2>I am your friendly guide to the Stanford Question and Answer Dataset (SQuAD).</h2>
-            <h2>You can ask me questions about the dataset, or you can ask me to generate images based on your prompts.</h2>
+            <h2>You can ask me questions about the dataset. You can also ask me to create images 
+            to help illustrate the topics under discussion, or expand the discussion beyond the dataset.</h2>
         """,
             examples=[
                 {

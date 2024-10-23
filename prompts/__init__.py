@@ -24,3 +24,5 @@ PROMPTS = load_constants("prompts")
 # Import all prompts locally as well, for code completion
 from transformers.agents.prompts import DEFAULT_REACT_CODE_SYSTEM_PROMPT
 from prompts.default import DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+from prompts.succinct import SUCCINCT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+from prompts.focused import FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT
