@@ -14,7 +14,10 @@ from transformers.agents import (
 )
 from tools.text_to_image import TextToImageTool
 from transformers import load_tool
-from prompts import DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT, FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT
+from prompts import (
+    DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT,
+    FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT,
+)
 from pygments.formatters import HtmlFormatter
 
 
@@ -65,7 +68,7 @@ agent = get_agent(
     model_name=model_name,
     toolbox=TASK_SOLVING_TOOLBOX,
     system_prompt=system_prompt,
-    use_openai=True, # Use OpenAI instead of a local or HF model as the base LLM engine
+    use_openai=True,  # Use OpenAI instead of a local or HF model as the base LLM engine
 )
 
 app = None
@@ -130,10 +133,18 @@ def persist(component):
 
     return component
 
+
 from gradio.components import (
     Component as GradioComponent,
 )
-from gradio.components.chatbot import Chatbot, FileDataDict, FileData, ComponentMessage, FileMessage
+from gradio.components.chatbot import (
+    Chatbot,
+    FileDataDict,
+    FileData,
+    ComponentMessage,
+    FileMessage,
+)
+
 
 class CleanChatBot(Chatbot):
     def __init__(self, **kwargs):
@@ -141,13 +152,9 @@ class CleanChatBot(Chatbot):
 
     def _postprocess_content(
         self,
-        chat_message: str
-        | tuple
-        | list
-        | FileDataDict
-        | FileData
-        | GradioComponent
-        | None,
+        chat_message: (
+            str | tuple | list | FileDataDict | FileData | GradioComponent | None
+        ),
     ) -> str | FileMessage | ComponentMessage | None:
         response = super()._postprocess_content(chat_message)
         print(f"Post processing content: {response}")
@@ -155,6 +162,7 @@ class CleanChatBot(Chatbot):
             print(f"Setting open to False for {response}")
             response.props["open"] = False
         return response
+
 
 with gr.Blocks(
     fill_height=True,

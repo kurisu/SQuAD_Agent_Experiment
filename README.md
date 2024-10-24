@@ -57,7 +57,11 @@ TBD
 
 TBD
 
-## Future Work
+## Related Research
+
+* [Retro: A Generalist Agent for Science](https://arxiv.org/abs/2112.04426)
+* [RETRO-pytorch](https://github.com/lucidrains/RETRO-pytorch)
+* [Why isn't Retro mainstream? State-of-the-art within reach](https://www.reddit.com/r/MachineLearning/comments/1cffgkt/d_why_isnt_retro_mainstream_stateoftheart_within/)
 
 TBD
 
