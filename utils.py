@@ -19,7 +19,7 @@ def highlight_code_html(code):
 
 def pull_message(step_log: dict):
     if step_log.get("rationale"):
-        yield "🧠 Thinking...", f"{step_log["rationale"]}"
+        yield "🧠 Thinking...", str(step_log["rationale"])
     if step_log.get("tool_call"):
         used_code = step_log["tool_call"]["tool_name"] == "code interpreter"
         content = step_log["tool_call"]["tool_arguments"]
