@@ -13,6 +13,7 @@ from transformers.agents import (
     VisitWebpageTool,
 )
 from tools.text_to_image import TextToImageTool
+from PIL import Image
 from transformers import load_tool
 from prompts import (
     DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT,
@@ -39,19 +40,19 @@ model_name = (
     else "http://localhost:1234/v1"
 )
 
-image_qa_tool = ImageQuestionAnsweringTool()
-image_qa_tool.inputs = {
-    "image": {
-        "type": "image",
-        "description": "The image containing the information. It must be a PIL Image.",
-    },
-    "question": {"type": "string", "description": "The question in English"},
-}
+class FixImageQuestionAnsweringTool(ImageQuestionAnsweringTool):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def encode(self, image: "Image | str", question: str):
+        if isinstance(image, str):
+            image = Image.open(image)
+        return super().encode(image, question)
 
 ADDITIONAL_TOOLS = [
     DuckDuckGoSearchTool(),
     VisitWebpageTool(),
-    ImageQuestionAnsweringTool(),
+    FixImageQuestionAnsweringTool(),
     load_tool("speech_to_text"),
     load_tool("text_to_speech"),
     load_tool("translation"),
