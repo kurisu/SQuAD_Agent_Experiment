@@ -13,3 +13,4 @@ llama-index-vector-stores-chroma==0.2.0
 torch==2.4.1
 gdown==5.2.0
 termcolor==2.5.0
+accelerate==0.34.2
