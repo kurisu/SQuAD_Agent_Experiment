@@ -52,7 +52,7 @@ def stream_from_transformers_agent(
                     terminal_message = highlight_code_terminal(message)
                     message = highlight_code_html(message)
                 if "Observing" in title:
-                    message = f"<div style='border:1px solid black; background-color: var(--code-background-fill); padding: 10px;'>{message.replace("\n", "<br/>")}</div>"
+                    message = f"<div style='border:1px solid black; background-color: var(--code-background-fill); padding: 10px;'>{message.replace('\n', '<br/>')}</div>"
                 print(colored("=== Inner Monologue Message:\n", "blue", attrs=["bold"]), f"{title}\n{terminal_message}")
                 inner_monologue.content += f"<h2>{title}</h2><p>{message}</p>"
                 yield title
