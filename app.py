@@ -40,6 +40,12 @@ model_name = (
     else "http://localhost:1234/v1"
 )
 
+"""
+The ImageQuestionAnsweringTool from Transformers Agents 2.0 has a bug where 
+it said it accepts the path to an image, but it does not. 
+This class uses the adapter pattern to fix the issue, in a way that may be 
+compatible with future versions of the tool even if the bug is fixed.
+"""
 class FixImageQuestionAnsweringTool(ImageQuestionAnsweringTool):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,6 +55,13 @@ class FixImageQuestionAnsweringTool(ImageQuestionAnsweringTool):
             image = Image.open(image)
         return super().encode(image, question)
 
+"""
+The app version of the agent has access to additional tools that are not available
+during benchmarking. We chose this approach to focus benchmarking on the agent's
+ability to solve questions about the SQuAD dataset, without the help of general 
+knowledge available on the web.  For the purposes of the project, the demo 
+app has access to additional tools to provide a more interactive and engaging experience.
+"""
 ADDITIONAL_TOOLS = [
     DuckDuckGoSearchTool(),
     VisitWebpageTool(),
@@ -62,7 +75,7 @@ ADDITIONAL_TOOLS = [
 # Add image tools to the default task solving toolbox, for a more visually interactive experience
 TASK_SOLVING_TOOLBOX = DEFAULT_TASK_SOLVING_TOOLBOX + ADDITIONAL_TOOLS
 
-# system_prompt = DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT
+# Using the focused prompt, which was the top-performing prompt during benchmarking
 system_prompt = FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT
 
 agent = get_agent(
@@ -71,9 +84,6 @@ agent = get_agent(
     system_prompt=system_prompt,
     use_openai=True,  # Use OpenAI instead of a local or HF model as the base LLM engine
 )
-
-app = None
-
 
 def append_example_message(x: gr.SelectData, messages):
     if x.value["text"] is not None:
@@ -197,7 +207,7 @@ with gr.Blocks(
                     "text": "What is on top of the Notre Dame building?",
                 },
                 {
-                    "text": "Tell me what's on top of the Notre Dame building, and draw a picture of it.",
+                    "text": "What is the Olympic Torch made of?",
                 },
                 {
                     "text": "Draw a picture of whatever is on top of the Notre Dame building.",
