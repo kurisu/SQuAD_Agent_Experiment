@@ -3,6 +3,7 @@ from prompts import *
 from tools.squad_tools import SquadRetrieverTool, SquadQueryTool
 from transformers.agents.llm_engine import MessageRole, get_clean_message_list
 from openai import OpenAI
+from prompts import FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT
 
 DEFAULT_TASK_SOLVING_TOOLBOX = [SquadRetrieverTool()] # , SquadQueryTool()
 
@@ -30,7 +31,7 @@ class OpenAIModel:
 
 def get_agent(
     model_name=None,
-    system_prompt=DEFAULT_SQUAD_REACT_CODE_SYSTEM_PROMPT,
+    system_prompt=FOCUSED_SQUAD_REACT_CODE_SYSTEM_PROMPT,
     toolbox=DEFAULT_TASK_SOLVING_TOOLBOX,
     use_openai=True,
     openai_model_name="gpt-4o-mini-2024-07-18",
